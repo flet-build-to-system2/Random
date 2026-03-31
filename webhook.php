@@ -1,22 +1,25 @@
 <?php
-require_once "functions.php";
+require_once "config.php";
 
-$update = json_decode(file_get_contents("php://input"), true);
+$input = file_get_contents("php://input");
+$update = json_decode($input, true);
+
+if (!$update) {
+    exit;
+}
+
+function sendMessage($chat_id, $text) {
+    $url = API_URL . "sendMessage";
+    file_get_contents($url . "?chat_id=$chat_id&text=" . urlencode($text));
+}
 
 if (isset($update["message"])) {
     $chat_id = $update["message"]["chat"]["id"];
-    $text = $update["message"]["text"];
+    $text = $update["message"]["text"] ?? '';
 
     if ($text == "/start") {
-        sendMessage($chat_id, "👋 Welcome!\nSend /random to get a random number.");
-    }
-
-    elseif ($text == "/random") {
-        $number = getRandomNumber();
-        sendMessage($chat_id, "🎲 Your random number is: $number");
-    }
-
-    else {
-        sendMessage($chat_id, "❓ Unknown command. Use /random");
+        sendMessage($chat_id, "Bot works on Render ✅");
+    } elseif ($text == "/random") {
+        sendMessage($chat_id, rand(1,100));
     }
 }
